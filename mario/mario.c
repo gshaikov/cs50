@@ -17,7 +17,7 @@ int main(void)
 
 int get_correct_height(string message)
 {
-    int height;
+    int height = 0;
     while (1)
     {
         height = get_int("%s", message);
