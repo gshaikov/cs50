@@ -10,15 +10,11 @@ const string MASTERCARD = "MASTERCARD";
 const string INVALID = "INVALID";
 const string UNKNOWN = "UNKNOWN";
 
-// Remaining digits after the first digits that identify the issuer.
-//  VISA starts with 4
-//  MASTERCARD starts with 51 to 55 inclusive
-//  AMEX starts with either 34 or 37
-// (Can't use math.h)
-const long REMAINDER_VISA_1 = 1000000000000;       // 10^12, 13-digit visa
-const long REMAINDER_VISA_2 = 1000000000000000;    // 10^15, 16-digit visa
-const long REMAINDER_MASTERCARD = 100000000000000; // 10^14, 16-digit mastercard
-const long REMAINDER_AMEX = 10000000000000;        // 10^13, 15-digit amex
+struct CardMeta
+{
+    int first_two_digits;
+    int number_of_digits;
+};
 
 void run_tests(void);
 string compute_issuer_or_invalid(long card_number);
@@ -70,32 +66,41 @@ int verify_luhn_checksum(long card_number)
     return (first_sum + second_sum) % 10 == 0;
 }
 
-int is_visa(int first_digits)
+// VISA has either 13 or 16 digits and starts with 4
+int is_visa(struct CardMeta cm)
 {
-    return first_digits == 4;
+    return (
+        (cm.first_two_digits >= 40 && cm.first_two_digits < 50) &&
+        (cm.number_of_digits == 13 || cm.number_of_digits == 16));
 }
 
-int is_mastercard(int first_digits)
+// MASTERCARD has 16 digits and starts with [51, 55] range
+int is_mastercard(struct CardMeta cm)
 {
-    return first_digits >= 51 && first_digits <= 55;
+    return (
+        (cm.first_two_digits >= 51 && cm.first_two_digits <= 55) &&
+        (cm.number_of_digits == 16));
 }
 
-int is_amex(int first_digits)
+// AMEX has 15 digits and starts with one of {34, 37}
+int is_amex(struct CardMeta cm)
 {
-    return first_digits == 34 || first_digits == 37;
+    return (
+        (cm.first_two_digits == 34 || cm.first_two_digits == 37) &&
+        (cm.number_of_digits == 15));
 }
 
-string compute_issuer_or_unknown(long card_number)
+string compute_issuer_or_unknown(struct CardMeta cm)
 {
-    if (is_visa(card_number / REMAINDER_VISA_1) || is_visa(card_number / REMAINDER_VISA_2))
+    if (is_visa(cm))
     {
         return VISA;
     }
-    else if (is_mastercard(card_number / REMAINDER_MASTERCARD))
+    else if (is_mastercard(cm))
     {
         return MASTERCARD;
     }
-    else if (is_amex(card_number / REMAINDER_AMEX))
+    else if (is_amex(cm))
     {
         return AMEX;
     }
@@ -105,9 +110,25 @@ string compute_issuer_or_unknown(long card_number)
     }
 }
 
+// invariant:
+// card_number >= 10
+struct CardMeta compute_card_meta(long card_number)
+{
+    struct CardMeta cm;
+    cm.number_of_digits = 2;
+    while (card_number >= 100)
+    {
+        card_number /= 10;
+        cm.number_of_digits += 1;
+    }
+    cm.first_two_digits = card_number;
+    return cm;
+}
+
 string compute_issuer_or_invalid(long card_number)
 {
-    string issuer_or_unknown = compute_issuer_or_unknown(card_number);
+    struct CardMeta cm = compute_card_meta(card_number);
+    string issuer_or_unknown = compute_issuer_or_unknown(cm);
     if (issuer_or_unknown == UNKNOWN || !verify_luhn_checksum(card_number))
     {
         return INVALID;
@@ -149,27 +170,48 @@ void test_verify_luhn_checksum(void)
     assert(verify_luhn_checksum(4012888888881889) == 0);
 }
 
+void test_card_meta(void)
+{
+    struct CardMeta result;
+    result = compute_card_meta(12);
+    assert(result.first_two_digits == 12);
+    assert(result.number_of_digits == 2);
+    result = compute_card_meta(123);
+    assert(result.first_two_digits == 12);
+    assert(result.number_of_digits == 3);
+    result = compute_card_meta(1234);
+    assert(result.first_two_digits == 12);
+    assert(result.number_of_digits == 4);
+    result = compute_card_meta(60110009901);
+    assert(result.first_two_digits == 60);
+    assert(result.number_of_digits == 11);
+    result = compute_card_meta(5105105105105100);
+    assert(result.first_two_digits == 51);
+    assert(result.number_of_digits == 16);
+}
+
 void compute_find_issuer_or_unknown(void)
 {
-    assert(compute_issuer_or_unknown(378282246310005) == AMEX);
-    assert(compute_issuer_or_unknown(371449635398431) == AMEX);
+    assert(compute_issuer_or_invalid(378282246310005) == AMEX);
+    assert(compute_issuer_or_invalid(371449635398431) == AMEX);
 
-    assert(compute_issuer_or_unknown(5555555555554444) == MASTERCARD);
-    assert(compute_issuer_or_unknown(5105105105105100) == MASTERCARD);
+    assert(compute_issuer_or_invalid(5555555555554444) == MASTERCARD);
+    assert(compute_issuer_or_invalid(5105105105105100) == MASTERCARD);
 
-    assert(compute_issuer_or_unknown(4111111111111111) == VISA);
-    assert(compute_issuer_or_unknown(4012888888881881) == VISA);
+    assert(compute_issuer_or_invalid(4111111111111111) == VISA);
+    assert(compute_issuer_or_invalid(4012888888881881) == VISA);
 
-    assert(compute_issuer_or_unknown(0) == UNKNOWN);
-    assert(compute_issuer_or_unknown(-1) == UNKNOWN);
-    assert(compute_issuer_or_unknown(9999999) == UNKNOWN);
-    assert(compute_issuer_or_unknown(6011000990139424) == UNKNOWN);
-    assert(compute_issuer_or_unknown(2221000000000009) == UNKNOWN);
+    assert(compute_issuer_or_invalid(0) == INVALID);
+    assert(compute_issuer_or_invalid(-1) == INVALID);
+    assert(compute_issuer_or_invalid(9999999) == INVALID);
+    assert(compute_issuer_or_invalid(6011000990139424) == INVALID);
+    assert(compute_issuer_or_invalid(2221000000000009) == INVALID);
 }
 
 void run_tests(void)
 {
     test_luhn_sum_every_other_digit();
     test_verify_luhn_checksum();
+    test_card_meta();
     compute_find_issuer_or_unknown();
 }
