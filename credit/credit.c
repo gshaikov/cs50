@@ -40,29 +40,35 @@ int main(void)
     printf("%s\n", card_name);
 }
 
-// invariant: *digits* has at most 2 digits
-int compute_checksum_digit(int digits)
+// invariant: *digit* is a single digit from 0 to 9
+int compute_checksum_digit_mult_1(int digit)
 {
-    return (digits / 10) + (digits % 10);
+    digit *= 1;
+    return (digit / 10) + (digit % 10);
 }
 
-// invariant: *multiplier* is either 1 or 2
-int luhn_sum_every_other_digit(long card_number, int multiplier)
+// invariant: *digit* is a single digit from 0 to 9
+int compute_checksum_digit_mult_2(int digit)
 {
-    int sum_luhn_digits = 0;
-    long trimmed = card_number;
-    while (trimmed > 0)
+    digit *= 2;
+    return (digit / 10) + (digit % 10);
+}
+
+// reduce the integer digit-wise
+int reduce_every_second_digit(long card_number, int fn(int), int init)
+{
+    while (card_number > 0)
     {
-        sum_luhn_digits += compute_checksum_digit((trimmed % 10) * multiplier);
-        trimmed /= 100;
+        init += fn(card_number % 10);
+        card_number /= 100;
     }
-    return sum_luhn_digits;
+    return init;
 }
 
 int verify_luhn_checksum(long card_number)
 {
-    int first_sum = luhn_sum_every_other_digit(card_number / 10, 2);
-    int second_sum = luhn_sum_every_other_digit(card_number, 1);
+    int first_sum = reduce_every_second_digit(card_number / 10, compute_checksum_digit_mult_2, 0);
+    int second_sum = reduce_every_second_digit(card_number, compute_checksum_digit_mult_1, 0);
     return (first_sum + second_sum) % 10 == 0;
 }
 
@@ -138,19 +144,15 @@ string compute_issuer_or_invalid(long card_number)
 
 // tests
 
-void test_luhn_sum_every_other_digit(void)
+int example_func(int a)
 {
-    assert(luhn_sum_every_other_digit(0, 1) == 0);
-    assert(luhn_sum_every_other_digit(1, 1) == 1);
-    assert(luhn_sum_every_other_digit(12, 1) == 2);
-    assert(luhn_sum_every_other_digit(123, 1) == 1 + 3);
-    assert(luhn_sum_every_other_digit(199, 1) == 1 + 9);
+    return a;
+}
 
-    assert(luhn_sum_every_other_digit(0, 2) == 0);
-    assert(luhn_sum_every_other_digit(1, 2) == 2);
-    assert(luhn_sum_every_other_digit(12, 2) == 4);
-    assert(luhn_sum_every_other_digit(123, 2) == 8);
-    assert(luhn_sum_every_other_digit(199, 2) == 2 + 1 + 8);
+void test_reduce_every_second_digit(void)
+{
+    assert(reduce_every_second_digit(1234, example_func, 0) == 6);
+    assert(reduce_every_second_digit(12345, example_func, 0) == 9);
 }
 
 void test_verify_luhn_checksum(void)
@@ -210,7 +212,7 @@ void compute_find_issuer_or_unknown(void)
 
 void run_tests(void)
 {
-    test_luhn_sum_every_other_digit();
+    test_reduce_every_second_digit();
     test_verify_luhn_checksum();
     test_card_meta();
     compute_find_issuer_or_unknown();
