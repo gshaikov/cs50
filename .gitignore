@@ -53,3 +53,5 @@ dkms.conf
 
 # CS50
 libcs50
+
+**/bin/**
