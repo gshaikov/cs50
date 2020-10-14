@@ -38,10 +38,26 @@ int main(int argc, string argv[])
 
 bool valid_key(Key key)
 {
-    int i = 0;
-    while (key[i] != '\0')
+    int len = 'z' + 1;
+    int map[len];
+    for (int i = 0; i < len; i++)
     {
-        i++;
+        map[i] = 0;
+    }
+    char alpha;
+    int i;
+    for (i = 0; key[i] != '\0'; i++)
+    {
+        if (!isalpha(key[i]))
+        {
+            return 0;
+        }
+        alpha = tolower(key[i]);
+        if (map[alpha] != 0)
+        {
+            return 0;
+        }
+        map[alpha] = 1;
     }
     return (i == 26);
 }
