@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
     int width = bi.biWidth;
 
     // Allocate memory for image
+    // image is a pointer to a width-size array of RGBTRIPLEs
     RGBTRIPLE(*image)[width] = calloc(height, width * sizeof(RGBTRIPLE));
     if (image == NULL)
     {
