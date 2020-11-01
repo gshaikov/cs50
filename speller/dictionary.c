@@ -135,9 +135,38 @@ unsigned int size(void)
     return 0;
 }
 
+// unload
+
+bool destroy_list(node *n)
+{
+    for (node *tmp = n; n != NULL; n = tmp)
+    {
+        tmp = n->next;
+        free(n);
+    }
+    return true;
+}
+
+bool map_table(unsigned int size, node *hash_table[size], bool (*fp)(node *))
+{
+    for (int idx = 0; idx < size; idx++)
+    {
+        if (!(*fp)(hash_table[idx]))
+        {
+            printf("map function failed on list\n");
+            return false;
+        }
+    }
+    return true;
+}
+
+bool unload_table(unsigned int size, node *hash_table[size])
+{
+    return map_table(N, table, destroy_list);
+}
+
 // Unloads dictionary from memory, returning true if successful else false
 bool unload(void)
 {
-    // TODO
-    return false;
+    return unload_table(N, table);
 }

@@ -56,6 +56,7 @@ void test_load_file_into_table(void)
         assert(load_file_into_table(size, table, dict));
         // TODO: `check` table
 
+        unload_table(size, table);
         fclose(dict);
     }
 }
