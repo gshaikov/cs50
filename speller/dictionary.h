@@ -23,6 +23,9 @@ bool load(const char *dictionary);
 unsigned int size(void);
 bool unload(void);
 
+bool check_list(node *n, const char *word);
+bool check_hash_table(int size, node *hash_table[size], const char *word);
+
 unsigned int hash_with_array_size(const char *word, unsigned int size);
 bool store_in_table(node *hash_table[], unsigned int hash_code, node *n);
 bool load_file_into_table(int size, node *hash_table[size], FILE *dict);

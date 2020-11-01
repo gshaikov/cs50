@@ -20,11 +20,30 @@ void init_node(node *n)
     n->next = NULL;
 }
 
+// check
+
+bool check_list(node *n, const char *word)
+{
+    while (n != NULL)
+    {
+        if (strcasecmp(n->word, word) == 0)
+        {
+            return true;
+        }
+        n = n->next;
+    }
+    return false;
+}
+
+bool check_hash_table(int size, node *hash_table[size], const char *word)
+{
+    return check_list(hash_table[hash_with_array_size(word, size)], word);
+}
+
 // Returns true if word is in dictionary else false
 bool check(const char *word)
 {
-    // TODO
-    return false;
+    return check_hash_table(N, table, word);
 }
 
 // hash
