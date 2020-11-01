@@ -128,11 +128,32 @@ bool load(const char *dictionary)
     return result;
 }
 
+// size
+
+unsigned int count_words_in_list(node *n)
+{
+    unsigned int words;
+    for (words = 0; n != NULL; n = n->next)
+    {
+        words++;
+    }
+    return words;
+}
+
+unsigned int size_hash_table(int size, node *hash_table[])
+{
+    unsigned int words = 0;
+    for (int i = 0; i < size; i++)
+    {
+        words += count_words_in_list(hash_table[i]);
+    }
+    return words;
+}
+
 // Returns number of words in dictionary if loaded else 0 if not yet loaded
 unsigned int size(void)
 {
-    // TODO
-    return 0;
+    return size_hash_table(N, table);
 }
 
 // unload

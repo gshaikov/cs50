@@ -27,6 +27,9 @@ unsigned int hash_with_array_size(const char *word, unsigned int size);
 bool store_in_table(node *hash_table[], unsigned int hash_code, node *n);
 bool load_file_into_table(int size, node *hash_table[size], FILE *dict);
 
+unsigned int count_words_in_list(node *n);
+unsigned int size_hash_table(int size, node *hash_table[]);
+
 bool unload_table(unsigned int size, node *hash_table[size]);
 
 #endif // DICTIONARY_H
