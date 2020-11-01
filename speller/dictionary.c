@@ -9,7 +9,7 @@
 #include "dictionary.h"
 
 // Number of buckets in hash table
-const unsigned int N = 1;
+const unsigned int N = 1 << 20;
 
 // Hash table
 node *table[N];
@@ -52,7 +52,24 @@ bool check(const char *word)
 // guarantees that the hash code is smaller than `size`
 unsigned int hash_with_array_size(const char *word, unsigned int size)
 {
-    return strlen(word) % size;
+    int key_bit_length = 20;
+    int chars = key_bit_length / 5;
+    unsigned int code = 0;
+    for (int i = 0; i < chars; i++)
+    {
+        if (word[i] == '\0')
+        {
+            return code % size;
+        }
+        code = (code << 5) + (tolower(word[i]) - 'a');
+    }
+    if (word[chars] == '\0')
+    {
+        return code % size;
+    }
+    int rem = key_bit_length % 5;
+    code = (code << rem) + ((tolower(word[chars]) - 'a') >> (5 - rem));
+    return code % size;
 }
 
 // Hashes word to a number

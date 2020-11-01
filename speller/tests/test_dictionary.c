@@ -57,8 +57,11 @@ void test_hash_with_array_size(void)
     assert(hash_with_array_size("", 1) == 0);
     assert(hash_with_array_size("abc", 1) == 0);
     assert(hash_with_array_size("sfsdgsd'sdfdsfsd'sfd", 1) == 0);
-    assert(hash_with_array_size("abc", 2) == 1);
-    assert(hash_with_array_size("abcde", 3) == 2);
+    unsigned int code;
+    code = (0 << 5 * 2) + (1 << 5 * 1) + (2 << 5 * 0);
+    assert(hash_with_array_size("abc", 10) == code % 10);
+    code = (0 << 5 * 3) + (1 << 5 * 2) + (2 << 5 * 1) + (3 << 5 * 0);
+    assert(hash_with_array_size("abcde", 10) == code % 10);
 }
 
 void test_store_in_table(void)
