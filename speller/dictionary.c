@@ -9,7 +9,7 @@
 #include "dictionary.h"
 
 // Number of buckets in hash table
-const unsigned int N = 1 << 20;
+const unsigned int N = 150151;
 
 // Hash table
 node *table[N];
@@ -48,28 +48,20 @@ bool check(const char *word)
 
 // hash
 
+// polynomial rolling hash function
+// https://cp-algorithms.com/string/string-hashing.html
 // compute hash code for an array with `size`
 // guarantees that the hash code is smaller than `size`
 unsigned int hash_with_array_size(const char *word, unsigned int size)
 {
-    int key_bit_length = 20;
-    int chars = key_bit_length / 5;
     unsigned int code = 0;
-    for (int i = 0; i < chars; i++)
+    unsigned int pow = 1;
+    for (int i = 0; word[i] != '\0'; i++)
     {
-        if (word[i] == '\0')
-        {
-            return code % size;
-        }
-        code = (code << 5) + (tolower(word[i]) - 'a');
+        code = (code + (tolower(word[i]) - 'a' + 1) * pow) % size;
+        pow = (pow * 31) % size;
     }
-    if (word[chars] == '\0')
-    {
-        return code % size;
-    }
-    int rem = key_bit_length % 5;
-    code = (code << rem) + ((tolower(word[chars]) - 'a') >> (5 - rem));
-    return code % size;
+    return code;
 }
 
 // Hashes word to a number
