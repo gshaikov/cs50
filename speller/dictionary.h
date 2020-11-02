@@ -3,6 +3,7 @@
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
 
+#include <stdio.h>
 #include <stdbool.h>
 
 // Maximum length for a word
@@ -24,15 +25,15 @@ unsigned int size(void);
 bool unload(void);
 
 bool check_list(node *n, const char *word);
-bool check_hash_table(int size, node *hash_table[size], const char *word);
+bool check_hash_table(int size, node *hash_table[], const char *word);
 
 unsigned int hash_with_array_size(const char *word, unsigned int size);
 bool store_in_table(node *hash_table[], unsigned int hash_code, node *n);
-bool load_file_into_table(int size, node *hash_table[size], FILE *dict);
+bool load_file_into_table(int size, node *hash_table[], FILE *dict);
 
 unsigned int count_words_in_list(node *n);
 unsigned int size_hash_table(int size, node *hash_table[]);
 
-bool unload_table(unsigned int size, node *hash_table[size]);
+bool unload_table(unsigned int size, node *hash_table[]);
 
 #endif // DICTIONARY_H

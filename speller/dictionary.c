@@ -75,10 +75,7 @@ unsigned int hash(const char *word)
 bool store_in_table(node *hash_table[], unsigned int hash_code, node *n)
 {
     node *tn = hash_table[hash_code];
-    if (tn != NULL)
-    {
-        n->next = tn;
-    }
+    n->next = tn;
     hash_table[hash_code] = n;
     return true;
 }
@@ -160,15 +157,16 @@ bool load(const char *dictionary)
 
 unsigned int count_words_in_list(node *n)
 {
-    unsigned int words;
-    for (words = 0; n != NULL; n = n->next)
+    unsigned int words = 0;
+    while (n != NULL)
     {
         words++;
+        n = n->next;
     }
     return words;
 }
 
-unsigned int size_hash_table(int size, node *hash_table[])
+unsigned int size_hash_table(int size, node *hash_table[size])
 {
     unsigned int words = 0;
     for (int i = 0; i < size; i++)

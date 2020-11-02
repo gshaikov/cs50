@@ -23,6 +23,9 @@ build:
 run_small: build
 	./bin/speller dictionaries/small texts/cat.txt
 
+run_big: build
+	./bin/speller dictionaries/large texts/holmes.txt
+
 build_test:
 	clang \
 	dictionary.c \
