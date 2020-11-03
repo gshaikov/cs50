@@ -88,37 +88,17 @@ bool load_file_into_table(int size, node *hash_table[size], FILE *dict)
         return false;
     }
     init_node(n);
-    int idx = 0;
-    for (char c = fgetc(dict); c != EOF; c = fgetc(dict))
+    // consume one string until a whitespace character reached
+    // Example: a string "foo\n" isconsumed as "foo"
+    while (fscanf(dict, "%s", n->word) != EOF)
     {
-        if (isalpha(c) || (c == '\'' && idx > 0))
+        store_in_table(hash_table, hash_with_array_size(n->word, size), n);
+        n = malloc(sizeof(node));
+        if (n == NULL)
         {
-            n->word[idx] = c;
-            idx++;
-        }
-        else if (c == '\n')
-        {
-            n->word[idx] = '\0';
-            if (!store_in_table(hash_table, hash_with_array_size(n->word, size), n))
-            {
-                printf("failed to store node in hash table\n");
-                free(n);
-                return false;
-            }
-            n = malloc(sizeof(node));
-            if (n == NULL)
-            {
-                return false;
-            }
-            init_node(n);
-            idx = 0;
-        }
-        else
-        {
-            printf("illegal character in file: %c\n", c);
-            free(n);
             return false;
         }
+        init_node(n);
     }
     free(n);
 
@@ -127,14 +107,9 @@ bool load_file_into_table(int size, node *hash_table[size], FILE *dict)
         printf("error while reading file\n");
         return false;
     }
-    if (feof(dict) && idx == 0)
+    if (feof(dict))
     {
         return true;
-    }
-    if (feof(dict) && idx > 0)
-    {
-        printf("file ends in the middle of a word\n");
-        return false;
     }
     printf("unknown logic error\n");
     return false;
