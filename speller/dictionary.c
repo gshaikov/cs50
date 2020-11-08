@@ -9,7 +9,7 @@
 #include "dictionary.h"
 
 // Number of buckets in hash table
-const unsigned int N = 150151;
+const unsigned int N = 201101;
 
 // Hash table
 node *TABLE[N];
