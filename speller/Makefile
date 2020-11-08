@@ -5,6 +5,7 @@ speller:
 
 build:
 	clang \
+	-g \
 	-ggdb3 \
 	-O0 \
 	-Qunused-arguments \
