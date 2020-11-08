@@ -41,7 +41,7 @@ bool check_list(node *n, const char *word)
 
 bool check_hash_table(int size, node *hash_table[size], const char *word)
 {
-    return check_list(hash_table[hash_with_array_size(word, size)], word);
+    return check_list(hash_table[hash_with_djb2(word, size)], word);
 }
 
 // Returns true if word is in dictionary else false
@@ -52,10 +52,23 @@ bool check(const char *word)
 
 // hash
 
+// http://www.cse.yorku.ca/~oz/hash.html
+// max words in list = 8 for N = 150151
+unsigned int hash_with_djb2(const char *word, unsigned int size)
+{
+    unsigned long hash = 5381;
+    for (int i = 0; word[i] != '\0'; i++)
+    {
+        hash = ((hash << 5) + hash) + (word[i] >= 'a' ? word[i] - 'a' : word[i] - 'A'); /* hash * 33 + c */
+    }
+    return hash % size;
+}
+
 // polynomial rolling hash function
 // https://cp-algorithms.com/string/string-hashing.html
 // compute hash code for an array with `size`
 // guarantees that the hash code is smaller than `size`
+// max words in list = 9 for N = 150151
 unsigned int hash_with_array_size(const char *word, unsigned int size)
 {
     unsigned int code = 0;
@@ -71,7 +84,7 @@ unsigned int hash_with_array_size(const char *word, unsigned int size)
 // Hashes word to a number
 unsigned int hash(const char *word)
 {
-    return hash_with_array_size(word, N);
+    return hash_with_djb2(word, N);
 }
 
 // load
@@ -103,7 +116,7 @@ bool load_file_into_table(int size, node *hash_table[size], FILE *dict)
         {
             break;
         }
-        store_in_table(hash_table, hash_with_array_size(n->word, size), n);
+        store_in_table(hash_table, hash_with_djb2(n->word, size), n);
     }
     NODES_IN_ARRAY = nidx;
 

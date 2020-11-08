@@ -46,8 +46,8 @@ void test_check_hash_table(void)
         init_table(size, table);
         node node1 = {.word = "foobar", .next = NULL};
         node node2 = {.word = "abc", .next = NULL};
-        table[hash_with_array_size(node1.word, size)] = &node1;
-        table[hash_with_array_size(node2.word, size)] = &node2;
+        table[hash_with_djb2(node1.word, size)] = &node1;
+        table[hash_with_djb2(node2.word, size)] = &node2;
         assert(check_hash_table(size, table, "abc"));
     }
 }
@@ -101,6 +101,7 @@ void test_load_file_into_table(void)
 
         assert(size_hash_table(size, table) == 2);
 
+        assert(check_hash_table(size, table, "foo"));
         assert(check_hash_table(size, table, "Foo"));
         assert(!check_hash_table(size, table, "abc"));
 
