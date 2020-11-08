@@ -12,7 +12,7 @@
 const unsigned int N = 150151;
 
 // Hash table
-node *table[N];
+node *TABLE[N];
 
 // pointer to node array
 node *NODE_ARRAY = NULL;
@@ -47,7 +47,7 @@ bool check_hash_table(int size, node *hash_table[size], const char *word)
 // Returns true if word is in dictionary else false
 bool check(const char *word)
 {
-    return check_hash_table(N, table, word);
+    return check_hash_table(N, TABLE, word);
 }
 
 // hash
@@ -128,7 +128,7 @@ bool load(const char *dictionary)
     {
         return false;
     }
-    bool result = load_file_into_table(N, table, dict);
+    bool result = load_file_into_table(N, TABLE, dict);
     fclose(dict);
     return result;
 }
@@ -189,7 +189,7 @@ bool map_table(unsigned int size, node *hash_table[size], bool (*fp)(node *))
 
 bool unload_table(unsigned int size, node *hash_table[size])
 {
-    return map_table(N, table, destroy_list);
+    return map_table(N, TABLE, destroy_list);
 }
 
 // Unloads dictionary from memory, returning true if successful else false
