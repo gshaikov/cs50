@@ -14,6 +14,9 @@ const unsigned int N = 150151;
 // Hash table
 node *table[N];
 
+// pointer to node array
+node *NODE_ARRAY = NULL;
+
 void init_node(node *n)
 {
     n->word[0] = '\0';
@@ -82,25 +85,24 @@ bool store_in_table(node *hash_table[], unsigned int hash_code, node *n)
 
 bool load_file_into_table(int size, node *hash_table[size], FILE *dict)
 {
-    node *n = malloc(sizeof(node));
-    if (n == NULL)
+    NODE_ARRAY = malloc(size * sizeof(node));
+    if (NODE_ARRAY == NULL)
     {
         return false;
     }
-    init_node(n);
-    // consume one string until a whitespace character reached
-    // Example: a string "foo\n" isconsumed as "foo"
-    while (fscanf(dict, "%s", n->word) != EOF)
+    node *n = NULL;
+    for (int nidx = 0; nidx < size; nidx++)
     {
-        store_in_table(hash_table, hash_with_array_size(n->word, size), n);
-        n = malloc(sizeof(node));
-        if (n == NULL)
-        {
-            return false;
-        }
+        n = &NODE_ARRAY[nidx];
         init_node(n);
+        // consume one string until a whitespace character reached
+        // Example: a string "foo\n" isconsumed as "foo"
+        if (fscanf(dict, "%s", n->word) == EOF)
+        {
+            break;
+        }
+        store_in_table(hash_table, hash_with_array_size(n->word, size), n);
     }
-    free(n);
 
     if (ferror(dict))
     {
@@ -190,5 +192,6 @@ bool unload_table(unsigned int size, node *hash_table[size])
 // Unloads dictionary from memory, returning true if successful else false
 bool unload(void)
 {
-    return unload_table(N, table);
+    free(NODE_ARRAY);
+    return true;
 }
