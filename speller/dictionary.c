@@ -91,8 +91,7 @@ unsigned int hash(const char *word)
 
 bool store_in_table(node *hash_table[], unsigned int hash_code, node *n)
 {
-    node *tn = hash_table[hash_code];
-    n->next = tn;
+    n->next = hash_table[hash_code];
     hash_table[hash_code] = n;
     return true;
 }
