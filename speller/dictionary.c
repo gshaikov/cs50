@@ -16,6 +16,7 @@ node *table[N];
 
 // pointer to node array
 node *NODE_ARRAY = NULL;
+int NODES_IN_ARRAY = 0;
 
 void init_node(node *n)
 {
@@ -90,8 +91,9 @@ bool load_file_into_table(int size, node *hash_table[size], FILE *dict)
     {
         return false;
     }
+    int nidx;
     node *n = NULL;
-    for (int nidx = 0; nidx < size; nidx++)
+    for (nidx = 0; nidx < size; nidx++)
     {
         n = &NODE_ARRAY[nidx];
         init_node(n);
@@ -103,6 +105,7 @@ bool load_file_into_table(int size, node *hash_table[size], FILE *dict)
         }
         store_in_table(hash_table, hash_with_array_size(n->word, size), n);
     }
+    NODES_IN_ARRAY = nidx;
 
     if (ferror(dict))
     {
@@ -156,7 +159,7 @@ unsigned int size_hash_table(int size, node *hash_table[size])
 // Returns number of words in dictionary if loaded else 0 if not yet loaded
 unsigned int size(void)
 {
-    return size_hash_table(N, table);
+    return NODES_IN_ARRAY;
 }
 
 // unload
