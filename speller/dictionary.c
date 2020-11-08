@@ -62,7 +62,7 @@ unsigned int hash_with_array_size(const char *word, unsigned int size)
     unsigned int pow = 1;
     for (int i = 0; word[i] != '\0'; i++)
     {
-        code = (code + (tolower(word[i]) - 'a' + 1) * pow) % size;
+        code = (code + ((word[i] >= 'a' ? word[i] - 'a' : word[i] - 'A') + 1) * pow) % size;
         pow = (pow * 31) % size;
     }
     return code;
