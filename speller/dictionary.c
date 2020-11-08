@@ -161,10 +161,15 @@ unsigned int count_words_in_list(node *n)
 unsigned int size_hash_table(int size, node *hash_table[size])
 {
     unsigned int words = 0;
+    int max = 0;
+    int tmp = 0;
     for (int i = 0; i < size; i++)
     {
-        words += count_words_in_list(hash_table[i]);
+        tmp = count_words_in_list(hash_table[i]);
+        max = tmp > max ? tmp : max;
+        words += tmp;
     }
+    printf("\nMAX WORDS IN LIST: %i\n", max);
     return words;
 }
 
@@ -172,6 +177,7 @@ unsigned int size_hash_table(int size, node *hash_table[size])
 unsigned int size(void)
 {
     return NODES_IN_ARRAY;
+    // return size_hash_table(N, TABLE);
 }
 
 // unload
