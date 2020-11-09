@@ -89,25 +89,17 @@ void test_store_in_table(void)
 void test_load_file_into_table(void)
 {
     {
-        FILE *dict = tmpfile();
-        fputs("foo\nbar\n", dict);
-        rewind(dict);
-
         int size = 10;
         node *table[size];
         init_table(size, table);
+        node node_array[size];
+        char dict[] = "foo\nbar\n";
 
-        assert(load_file_into_table(size, table, dict));
-
-        assert(size_hash_table(size, table) == 2);
+        assert(load_file_into_table(size, table, node_array, dict));
 
         assert(check_hash_table(size, table, "foo"));
         assert(check_hash_table(size, table, "Foo"));
         assert(!check_hash_table(size, table, "abc"));
-
-        assert(unload_table(size, table));
-
-        fclose(dict);
     }
 }
 

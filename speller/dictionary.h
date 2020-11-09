@@ -13,7 +13,7 @@
 // Represents a node in a hash table
 typedef struct node
 {
-    char word[LENGTH + 1];
+    char *word;
     struct node *next;
 } node;
 
@@ -30,6 +30,6 @@ bool check_hash_table(int size, node *hash_table[], const char *word);
 unsigned int hash_with_djb2(const char *word, unsigned int size);
 unsigned int hash_with_array_size(const char *word, unsigned int size);
 bool store_in_table(node *hash_table[], unsigned int hash_code, node *n);
-bool load_file_into_table(int size, node *hash_table[], FILE *dict);
+bool load_file_into_table(int size, node *hash_table[], node node_array[], char *dict);
 
 #endif // DICTIONARY_H

@@ -1,5 +1,10 @@
 // Implements a dictionary's functionality
 
+#include <sys/types.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -18,11 +23,9 @@ node *TABLE[N];
 node *NODE_ARRAY = NULL;
 int NODES_IN_ARRAY = 0;
 
-void init_node(node *n)
-{
-    n->word[0] = '\0';
-    n->next = NULL;
-}
+// pointer to mmapped dictionary
+char *DICT = NULL;
+int DICT_SIZE = 0;
 
 // check
 
@@ -96,53 +99,58 @@ bool store_in_table(node *hash_table[], unsigned int hash_code, node *n)
     return true;
 }
 
-bool load_file_into_table(int size, node *hash_table[size], FILE *dict)
+bool load_file_into_table(int size, node *hash_table[size], node node_array[size], char *dict)
 {
-    NODE_ARRAY = malloc(size * sizeof(node));
-    if (NODE_ARRAY == NULL)
-    {
-        return false;
-    }
-    int nidx;
+    // scan the string, replace delimiters, return pointers
+    // https://en.cppreference.com/w/c/string/byte/strtok
+    char *token = strtok(dict, "\n");
     node *n = NULL;
+    int nidx;
     for (nidx = 0; nidx < size; nidx++)
     {
-        n = &NODE_ARRAY[nidx];
-        init_node(n);
-        // consume one string until a whitespace character reached
-        // Example: a string "foo\n" isconsumed as "foo"
-        if (fscanf(dict, "%s", n->word) == EOF)
+        if (token == NULL)
         {
-            break;
+            NODES_IN_ARRAY = nidx;
+            return true;
         }
-        store_in_table(hash_table, hash_with_djb2(n->word, size), n);
+        n = &node_array[nidx];
+        n->word = token;
+        n->next = NULL;
+        store_in_table(hash_table, hash_with_djb2(token, size), n);
+        token = strtok(NULL, "\n");
     }
-    NODES_IN_ARRAY = nidx;
-
-    if (ferror(dict))
-    {
-        printf("error while reading file\n");
-        return false;
-    }
-    if (feof(dict))
-    {
-        return true;
-    }
-    printf("unknown logic error\n");
+    printf("array of nodes is too small to hold the dictionary: %i\n", nidx);
     return false;
 }
 
 // Loads dictionary into memory, returning true if successful else false
 bool load(const char *dictionary)
 {
-    FILE *dict = fopen(dictionary, "r");
-    if (dict == NULL)
+    NODE_ARRAY = malloc(N * sizeof(node));
+    if (NODE_ARRAY == NULL)
     {
         return false;
     }
-    bool result = load_file_into_table(N, TABLE, dict);
-    fclose(dict);
-    return result;
+    // open(path, mode, permissions) file and return file descriptor
+    // https://man7.org/linux/man-pages/man2/open.2.html
+    int fd_dict = open(dictionary, O_RDONLY, S_IRUSR);
+    if (fd_dict == -1)
+    {
+        return false;
+    }
+    // get info about the file
+    // https://man7.org/linux/man-pages/man2/fstat.2.html
+    struct stat sb;
+    if (fstat(fd_dict, &sb) == -1)
+    {
+        return false;
+    }
+    DICT_SIZE = sb.st_size;
+    // map file into virtual memory of the process
+    // https://man7.org/linux/man-pages/man2/mmap.2.html
+    DICT = mmap(NULL, DICT_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd_dict, 0);
+    close(fd_dict);
+    return load_file_into_table(N, TABLE, NODE_ARRAY, DICT);
 }
 
 // size
@@ -159,5 +167,6 @@ unsigned int size(void)
 bool unload(void)
 {
     free(NODE_ARRAY);
+    munmap(DICT, DICT_SIZE);
     return true;
 }
