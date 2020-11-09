@@ -147,27 +147,6 @@ bool load(const char *dictionary)
 
 // size
 
-unsigned int count_words_in_list(node *n)
-{
-    unsigned int words = 0;
-    while (n != NULL)
-    {
-        words++;
-        n = n->next;
-    }
-    return words;
-}
-
-unsigned int size_hash_table(int size, node *hash_table[size])
-{
-    unsigned int words = 0;
-    for (int i = 0; i < size; i++)
-    {
-        words += count_words_in_list(hash_table[i]);
-    }
-    return words;
-}
-
 // Returns number of words in dictionary if loaded else 0 if not yet loaded
 unsigned int size(void)
 {
@@ -175,34 +154,6 @@ unsigned int size(void)
 }
 
 // unload
-
-bool destroy_list(node *n)
-{
-    for (node *tmp = n; n != NULL; n = tmp)
-    {
-        tmp = n->next;
-        free(n);
-    }
-    return true;
-}
-
-bool map_table(unsigned int size, node *hash_table[size], bool (*fp)(node *))
-{
-    for (int idx = 0; idx < size; idx++)
-    {
-        if (!(*fp)(hash_table[idx]))
-        {
-            printf("map function failed on list\n");
-            return false;
-        }
-    }
-    return true;
-}
-
-bool unload_table(unsigned int size, node *hash_table[size])
-{
-    return map_table(N, TABLE, destroy_list);
-}
 
 // Unloads dictionary from memory, returning true if successful else false
 bool unload(void)
